@@ -1,3 +1,6 @@
+# Ignroing data used to run
+*.txt
+
 # Binaries for programs and plugins
 *.exe
 *.exe~
