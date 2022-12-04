@@ -34,22 +34,17 @@ func two(data []string) int {
 	var output int
 
 	for _, e := range data {
-		ass := strings.Split(e, ",")
-		elfOne, elfTwo := strings.Split(ass[0], "-"), strings.Split(ass[1], "-")
+		var elfOne_low, elfOne_high, elfTwo_low, elfTwo_high int
+		_, err := fmt.Sscanf(e, "%d-%d,%d-%d", &elfOne_low, &elfOne_high, &elfTwo_low, &elfTwo_high)
 
-		elfOne_low, _ := strconv.Atoi(elfOne[0])
-		elfOne_high, _ := strconv.Atoi(elfOne[1])
-		elfTwo_low, _ := strconv.Atoi(elfTwo[0])
-		elfTwo_high, _ := strconv.Atoi(elfTwo[1])
+		if err != nil {
+			panic(err)
+		}
 
-		if elfTwo_low <= elfOne_low && elfOne_low <= elfTwo_high {
-			output += 1
-		} else if elfTwo_low <= elfOne_high && elfOne_high <= elfTwo_high {
-			output += 1
-		} else if elfOne_low <= elfTwo_low && elfTwo_low <= elfOne_high {
-			output += 1
-		} else if elfOne_low <= elfTwo_high && elfTwo_high <= elfOne_high {
-			output += 1
+		if elfTwo_low <= elfOne_high && elfTwo_high >= elfOne_low {
+			output++
+		} else if elfOne_low <= elfTwo_high && elfOne_high >= elfTwo_low {
+			output++
 		}
 	}
 
