@@ -6,7 +6,29 @@ import (
 	"os"
 )
 
-func makeMoves(stack [][]string, instructions [][]int) [][]string {
+func makeMovesTwo(stack [][]string, instructions [][]int) [][]string {
+	for _, instr := range instructions {
+		numToMove := instr[0]
+		fromStack := instr[1] - 1
+		toStack := instr[2] - 1
+
+		subStackFrom := stack[fromStack]
+		subStackTo := stack[toStack]
+
+		val := make([]string, len(subStackFrom[:numToMove]))
+		copy(val, subStackFrom[:numToMove])
+
+		subStackTo = append(val, subStackTo...)
+		subStackFrom = subStackFrom[numToMove:]
+
+		stack[fromStack] = subStackFrom
+		stack[toStack] = subStackTo
+	}
+
+	return stack
+}
+
+func makeMovesOne(stack [][]string, instructions [][]int) [][]string {
 	for _, instr := range instructions {
 		numToMove := instr[0]
 		fromStack := instr[1] - 1
@@ -98,8 +120,15 @@ func readData(path string) []string {
 	return data
 }
 
+func two(stack [][]string, instructions [][]int) {
+	finalStack := makeMovesTwo(stack, instructions)
+	for _, e := range finalStack {
+		fmt.Print(e[0])
+	}
+}
+
 func one(stack [][]string, instructions [][]int) {
-	finalStack := makeMoves(stack, instructions)
+	finalStack := makeMovesOne(stack, instructions)
 	for _, e := range finalStack {
 		fmt.Print(e[0])
 	}
@@ -110,5 +139,6 @@ func main() {
 	stack, instructions := splitData(data)
 	newStack := parseStack(stack)
 	newInstructions := parseInstructions(instructions)
-	one(newStack, newInstructions)
+	// one(newStack, newInstructions)
+	two(newStack, newInstructions)
 }
