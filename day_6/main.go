@@ -1,9 +1,8 @@
 package main
 
 import (
-	"bufio"
+	"aoc/2022/aoc2022/readinput"
 	"fmt"
-	"os"
 )
 
 func calc(data string, addNum int) {
@@ -22,36 +21,8 @@ func calc(data string, addNum int) {
 	}
 }
 
-func readData(path string) []string {
-	var data []string
-	readFile, err := os.Open(path)
-
-	if err != nil {
-		fmt.Println(err)
-	}
-
-	defer readFile.Close()
-
-	fileScanner := bufio.NewScanner(readFile)
-
-	fileScanner.Split(bufio.ScanLines)
-
-	for fileScanner.Scan() {
-		val := fileScanner.Text()
-
-		if err != nil {
-			fmt.Println(err)
-		}
-
-		data = append(data, val)
-	}
-
-	return data
-}
-
 func main() {
-	// data := readData("input_test.txt")
-	data := readData("input.txt")
+	data := readinput.ReadData("input.txt")
 	calc(data[0], 4)
 	calc(data[0], 14)
 }

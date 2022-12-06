@@ -1,13 +1,13 @@
 package main
 
 import (
-	"bufio"
+	"aoc/2022/aoc2022/readinput"
 	"fmt"
-	"os"
+	"sort"
 	"strconv"
 )
 
-func findMaxSubset(data [][]int) int {
+func findMaxSubsetOne(data [][]int) int {
 	var max int
 	for _, e := range data {
 		var sum int
@@ -23,7 +23,7 @@ func findMaxSubset(data [][]int) int {
 	return max
 }
 
-func parseData(data []string) [][]int {
+func parseDataOne(data []string) [][]int {
 	var subSlice []int
 	var outputSlice [][]int
 
@@ -40,37 +40,55 @@ func parseData(data []string) [][]int {
 	return outputSlice
 }
 
-func readData(path string) []string {
-	var data []string
-	readFile, err := os.Open(path)
+func findMaxSubsetTwo(data [][]int) int {
+	var calCounts []int
+	var sum int
 
-	if err != nil {
-		fmt.Println(err)
-	}
-
-	defer readFile.Close()
-
-	fileScanner := bufio.NewScanner(readFile)
-
-	fileScanner.Split(bufio.ScanLines)
-
-	for fileScanner.Scan() {
-		// val, err := strconv.Atoi(fileScanner.Text())
-		val := fileScanner.Text()
-
-		if err != nil {
-			fmt.Println(err)
+	for _, e := range data {
+		var sum int
+		for _, i := range e {
+			sum += i
 		}
-
-		data = append(data, val)
+		calCounts = append(calCounts, sum)
 	}
 
-	return data
+	sort.Ints(calCounts)
+	no_elfs := len(calCounts)
+
+	for i := 1; i < 4; i++ {
+		sum += calCounts[no_elfs-i]
+	}
+
+	return sum
+}
+
+func parseDataTwo(data []string) [][]int {
+	var subSlice []int
+	var outputSlice [][]int
+
+	for _, e := range data {
+		if e != "" {
+			val, _ := strconv.Atoi(e)
+			subSlice = append(subSlice, val)
+		} else {
+			outputSlice = append(outputSlice, subSlice)
+			subSlice = nil
+		}
+	}
+
+	outputSlice = append(outputSlice, subSlice)
+
+	return outputSlice
 }
 
 func main() {
-	data := readData("indata_1.txt")
-	elfs := parseData(data)
-	res := findMaxSubset(elfs)
+	data := readinput.ReadData("indata_1.txt")
+	elfs := parseDataOne(data)
+	res := findMaxSubsetOne(elfs)
+	fmt.Println(res)
+
+	data = readinput.ReadData("indata_2.txt")
+	elfs = parseDataTwo(data)
+	res = findMaxSubsetTwo(elfs)
 	fmt.Println(res)
 }
