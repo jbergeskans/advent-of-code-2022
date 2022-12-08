@@ -93,83 +93,66 @@ func calcOne(trees []tree, maxCoord int) int {
 func calcTwo(trees []tree, maxCoord int) int {
 	var visCountOut [][]int
 	for _, tree := range trees {
-		if tree.xPos != 1 {
-			visCount := 0
-			var visCountInner []int
-			curr := tree
-			baseHeight := tree.height
-			// foundExit := false
+		var visCountL, visCountR, visCountU, visCountD int
 
-			for {
-				if curr.left != nil {
-					visCount++
-					if baseHeight > curr.left.height {
-						curr = *curr.left
-					} else {
-						visCountInner = append(visCountInner, visCount)
-						break
-					}
+		curr := tree
+
+		for {
+			if curr.left != nil {
+				visCountL++
+				if tree.height > curr.left.height {
+					curr = *curr.left
 				} else {
-					visCountInner = append(visCountInner, visCount)
 					break
 				}
+			} else {
+				break
 			}
-
-			curr = tree
-			visCount = 0
-			for {
-				if curr.right != nil {
-					visCount++
-					if baseHeight > curr.right.height {
-						curr = *curr.right
-					} else {
-						visCountInner = append(visCountInner, visCount)
-						break
-					}
-				} else {
-					visCountInner = append(visCountInner, visCount)
-					break
-				}
-			}
-
-			curr = tree
-			visCount = 0
-			for {
-				if curr.up != nil {
-					visCount++
-					if baseHeight > curr.up.height {
-						curr = *curr.up
-					} else {
-						visCountInner = append(visCountInner, visCount)
-						break
-					}
-				} else {
-					visCountInner = append(visCountInner, visCount)
-					break
-				}
-			}
-
-			curr = tree
-			visCount = 0
-			for {
-				if curr.down != nil {
-					visCount++
-					if baseHeight > curr.down.height {
-						curr = *curr.down
-					} else {
-						visCountInner = append(visCountInner, visCount)
-						break
-					}
-				} else {
-					visCountInner = append(visCountInner, visCount)
-					break
-				}
-			}
-
-			visCountOut = append(visCountOut, visCountInner)
-		} else {
-			visCountOut = append(visCountOut, []int{10, 0, 0, 0})
 		}
+
+		curr = tree
+		for {
+			if curr.right != nil {
+				visCountR++
+				if tree.height > curr.right.height {
+					curr = *curr.right
+				} else {
+					break
+				}
+			} else {
+				break
+			}
+		}
+
+		curr = tree
+		for {
+			if curr.up != nil {
+				visCountU++
+				if tree.height > curr.up.height {
+					curr = *curr.up
+				} else {
+					break
+				}
+			} else {
+				break
+			}
+		}
+
+		curr = tree
+		for {
+			if curr.down != nil {
+				visCountD++
+				if tree.height > curr.down.height {
+					curr = *curr.down
+				} else {
+					break
+				}
+			} else {
+				break
+			}
+		}
+
+		visCountOut = append(visCountOut, []int{visCountL, visCountR, visCountU, visCountD})
 	}
 
 	currMax := 0
