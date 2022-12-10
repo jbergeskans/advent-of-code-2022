@@ -110,117 +110,48 @@ func Show(l *knotList) {
 }
 
 func moveTwo(node *knot, direction string, tailPositions map[string]int) {
-	// fmt.Println(node.parent)
 	for node != nil {
-		// fmt.Println(node)
-		if direction == "R" || direction == "L" {
-			if calcAbs((node.parent.xPos - node.xPos)) > 1 {
-				for calcAbs((node.parent.xPos - node.xPos)) != 1 {
-					if direction == "R" && node.parent.xPos-node.xPos > 1 {
-						node.xPos++
-					} else if direction == "L" && node.parent.xPos-node.xPos < -1 {
-						node.xPos--
-					} else {
-						if node.parent.xPos-node.xPos > 1 {
-							node.xPos++
-						} else if node.parent.xPos-node.xPos < -1 {
-							node.xPos--
-						}
-					}
-
-					if (node.parent.yPos - node.yPos) > 0 {
-						node.yPos++
-					} else if (node.parent.yPos - node.yPos) < 0 {
-						node.yPos--
-					}
-					if node.pos == 9 {
-						tailNewPos := strconv.Itoa(node.xPos) + "_" + strconv.Itoa(node.yPos)
-						tailPositions[tailNewPos] = 1
-					}
+		// Need to move along the x-axis
+		if calcAbs((node.parent.xPos - node.xPos)) > 1 {
+			// Move knots until they've reached their end position
+			for calcAbs((node.parent.xPos - node.xPos)) != 1 {
+				if node.parent.xPos-node.xPos > 1 {
+					node.xPos++
+				} else if node.parent.xPos-node.xPos < -1 {
+					node.xPos--
 				}
-			} else if calcAbs((node.parent.yPos - node.yPos)) > 1 {
-				for calcAbs((node.parent.yPos - node.yPos)) != 1 {
-					if direction == "U" && node.parent.yPos-node.yPos > 1 {
-						node.yPos++
-					} else if direction == "D" && node.parent.yPos-node.yPos < -1 {
-						node.yPos--
-					} else {
-						if node.parent.yPos-node.yPos > 1 {
-							node.yPos++
-						} else if node.parent.yPos-node.yPos < -1 {
-							node.yPos--
-						}
-					}
 
-					if (node.parent.xPos - node.xPos) > 0 {
-						node.xPos++
-					} else if (node.parent.xPos - node.xPos) < 0 {
-						node.xPos--
-					}
-					if node.pos == 9 {
-						tailNewPos := strconv.Itoa(node.xPos) + "_" + strconv.Itoa(node.yPos)
-						tailPositions[tailNewPos] = 1
-					}
+				if (node.parent.yPos - node.yPos) > 0 {
+					node.yPos++
+				} else if (node.parent.yPos - node.yPos) < 0 {
+					node.yPos--
 				}
 			}
-		} else { // U, D
-			if calcAbs((node.parent.xPos - node.xPos)) > 1 {
-				for calcAbs((node.parent.xPos - node.xPos)) != 1 {
-					if direction == "R" && node.parent.xPos-node.xPos > 1 {
-						node.xPos++
-					} else if direction == "L" && node.parent.xPos-node.xPos < -1 {
-						node.xPos--
-					} else {
-						if node.parent.xPos-node.xPos > 1 {
-							node.xPos++
-						} else if node.parent.xPos-node.xPos < -1 {
-							node.xPos--
-						}
-					}
-
-					if (node.parent.yPos - node.yPos) > 0 {
-						node.yPos++
-					} else if (node.parent.yPos - node.yPos) < 0 {
-						node.yPos--
-					}
-					if node.pos == 9 {
-						tailNewPos := strconv.Itoa(node.xPos) + "_" + strconv.Itoa(node.yPos)
-						tailPositions[tailNewPos] = 1
-					}
+			// Need tom move along the y-axis
+		} else if calcAbs((node.parent.yPos - node.yPos)) > 1 {
+			// Move knots until they've reached their end position
+			for calcAbs((node.parent.yPos - node.yPos)) != 1 {
+				if node.parent.yPos-node.yPos > 1 {
+					node.yPos++
+				} else if node.parent.yPos-node.yPos < -1 {
+					node.yPos--
 				}
-			} else if calcAbs((node.parent.yPos - node.yPos)) > 1 {
-				for calcAbs((node.parent.yPos - node.yPos)) != 1 {
-					if direction == "U" && node.parent.yPos-node.yPos > 1 {
-						node.yPos++
-					} else if direction == "D" && node.parent.yPos-node.yPos < -1 {
-						node.yPos--
-					} else {
-						if node.parent.yPos-node.yPos > 1 {
-							node.yPos++
-						} else if node.parent.yPos-node.yPos < -1 {
-							node.yPos--
-						}
-					}
 
-					if (node.parent.xPos - node.xPos) > 0 {
-						node.xPos++
-					} else if (node.parent.xPos - node.xPos) < 0 {
-						node.xPos--
-					}
-					if node.pos == 9 {
-						tailNewPos := strconv.Itoa(node.xPos) + "_" + strconv.Itoa(node.yPos)
-						tailPositions[tailNewPos] = 1
-					}
+				if (node.parent.xPos - node.xPos) > 0 {
+					node.xPos++
+				} else if (node.parent.xPos - node.xPos) < 0 {
+					node.xPos--
 				}
 			}
 		}
-		// fmt.Println(node)
-		// fmt.Println("===============")
+
+		if node.pos == 9 {
+			tailNewPos := strconv.Itoa(node.xPos) + "_" + strconv.Itoa(node.yPos)
+			tailPositions[tailNewPos] = 1
+		}
 
 		node = node.child
 	}
-
-	// fmt.Println("OUT")
 }
 
 func two(moves []string) int {
@@ -228,18 +159,17 @@ func two(moves []string) int {
 	tailPositions["1_1"] = 1
 	kl := knotList{}
 
+	// Create knots
 	for i := 0; i < 10; i++ {
 		kl.Insert(i)
 	}
 
 	for _, move := range moves {
-		// fmt.Println(tailPositions)
 		splitMove := strings.Split(move, " ")
 		direction := splitMove[0]
 		steps, _ := strconv.Atoi(splitMove[1])
-		// fmt.Println(" ")
-		// fmt.Println("!!!!!!!!!!!!!!!!!!!", move)
 
+		// Calculate head movement
 		for i := 0; i < steps; i++ {
 			switch direction {
 			case "R":
@@ -252,6 +182,7 @@ func two(moves []string) int {
 				kl.head.yPos -= 1
 			}
 
+			// Calculate how knots react to head movement
 			moveTwo(kl.head.child, direction, tailPositions)
 		}
 	}
