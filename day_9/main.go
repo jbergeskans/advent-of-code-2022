@@ -8,14 +8,21 @@ import (
 )
 
 type knot struct {
-	xPos int
-	yPos int
+	xPos   int
+	yPos   int
+	parent *knot
+	child  *knot
+	pos    int
+}
+
+type knotList struct {
+	head *knot
 }
 
 func one(moves []string) int {
 	tailPositions := make(map[string]int)
-	head := knot{1, 1}
-	tail := knot{1, 1}
+	head := knot{1, 1, nil, nil, 1}
+	tail := knot{1, 1, nil, nil, 1}
 
 	tailStartStr := strconv.Itoa(tail.xPos) + "_" + strconv.Itoa(tail.yPos)
 	tailPositions[tailStartStr] = 1
@@ -80,6 +87,178 @@ func one(moves []string) int {
 	return len(tailPositions)
 }
 
+func (kl *knotList) Insert(pos int) {
+	newNode := &knot{1, 1, nil, nil, pos}
+	if kl.head == nil {
+		kl.head = newNode
+	} else {
+		p := kl.head
+		for p.child != nil {
+			p = p.child
+		}
+		newNode.parent = p
+		p.child = newNode
+	}
+}
+
+func Show(l *knotList) {
+	p := l.head
+	for p != nil {
+		fmt.Printf("-> %v ", p)
+		p = p.child
+	}
+}
+
+func moveTwo(node *knot, direction string, tailPositions map[string]int) {
+	// fmt.Println(node.parent)
+	for node != nil {
+		// fmt.Println(node)
+		if direction == "R" || direction == "L" {
+			if calcAbs((node.parent.xPos - node.xPos)) > 1 {
+				for calcAbs((node.parent.xPos - node.xPos)) != 1 {
+					if direction == "R" && node.parent.xPos-node.xPos > 1 {
+						node.xPos++
+					} else if direction == "L" && node.parent.xPos-node.xPos < -1 {
+						node.xPos--
+					} else {
+						if node.parent.xPos-node.xPos > 1 {
+							node.xPos++
+						} else if node.parent.xPos-node.xPos < -1 {
+							node.xPos--
+						}
+					}
+
+					if (node.parent.yPos - node.yPos) > 0 {
+						node.yPos++
+					} else if (node.parent.yPos - node.yPos) < 0 {
+						node.yPos--
+					}
+					if node.pos == 9 {
+						tailNewPos := strconv.Itoa(node.xPos) + "_" + strconv.Itoa(node.yPos)
+						tailPositions[tailNewPos] = 1
+					}
+				}
+			} else if calcAbs((node.parent.yPos - node.yPos)) > 1 {
+				for calcAbs((node.parent.yPos - node.yPos)) != 1 {
+					if direction == "U" && node.parent.yPos-node.yPos > 1 {
+						node.yPos++
+					} else if direction == "D" && node.parent.yPos-node.yPos < -1 {
+						node.yPos--
+					} else {
+						if node.parent.yPos-node.yPos > 1 {
+							node.yPos++
+						} else if node.parent.yPos-node.yPos < -1 {
+							node.yPos--
+						}
+					}
+
+					if (node.parent.xPos - node.xPos) > 0 {
+						node.xPos++
+					} else if (node.parent.xPos - node.xPos) < 0 {
+						node.xPos--
+					}
+					if node.pos == 9 {
+						tailNewPos := strconv.Itoa(node.xPos) + "_" + strconv.Itoa(node.yPos)
+						tailPositions[tailNewPos] = 1
+					}
+				}
+			}
+		} else { // U, D
+			if calcAbs((node.parent.xPos - node.xPos)) > 1 {
+				for calcAbs((node.parent.xPos - node.xPos)) != 1 {
+					if direction == "R" && node.parent.xPos-node.xPos > 1 {
+						node.xPos++
+					} else if direction == "L" && node.parent.xPos-node.xPos < -1 {
+						node.xPos--
+					} else {
+						if node.parent.xPos-node.xPos > 1 {
+							node.xPos++
+						} else if node.parent.xPos-node.xPos < -1 {
+							node.xPos--
+						}
+					}
+
+					if (node.parent.yPos - node.yPos) > 0 {
+						node.yPos++
+					} else if (node.parent.yPos - node.yPos) < 0 {
+						node.yPos--
+					}
+					if node.pos == 9 {
+						tailNewPos := strconv.Itoa(node.xPos) + "_" + strconv.Itoa(node.yPos)
+						tailPositions[tailNewPos] = 1
+					}
+				}
+			} else if calcAbs((node.parent.yPos - node.yPos)) > 1 {
+				for calcAbs((node.parent.yPos - node.yPos)) != 1 {
+					if direction == "U" && node.parent.yPos-node.yPos > 1 {
+						node.yPos++
+					} else if direction == "D" && node.parent.yPos-node.yPos < -1 {
+						node.yPos--
+					} else {
+						if node.parent.yPos-node.yPos > 1 {
+							node.yPos++
+						} else if node.parent.yPos-node.yPos < -1 {
+							node.yPos--
+						}
+					}
+
+					if (node.parent.xPos - node.xPos) > 0 {
+						node.xPos++
+					} else if (node.parent.xPos - node.xPos) < 0 {
+						node.xPos--
+					}
+					if node.pos == 9 {
+						tailNewPos := strconv.Itoa(node.xPos) + "_" + strconv.Itoa(node.yPos)
+						tailPositions[tailNewPos] = 1
+					}
+				}
+			}
+		}
+		// fmt.Println(node)
+		// fmt.Println("===============")
+
+		node = node.child
+	}
+
+	// fmt.Println("OUT")
+}
+
+func two(moves []string) int {
+	tailPositions := make(map[string]int)
+	tailPositions["1_1"] = 1
+	kl := knotList{}
+
+	for i := 0; i < 10; i++ {
+		kl.Insert(i)
+	}
+
+	for _, move := range moves {
+		// fmt.Println(tailPositions)
+		splitMove := strings.Split(move, " ")
+		direction := splitMove[0]
+		steps, _ := strconv.Atoi(splitMove[1])
+		// fmt.Println(" ")
+		// fmt.Println("!!!!!!!!!!!!!!!!!!!", move)
+
+		for i := 0; i < steps; i++ {
+			switch direction {
+			case "R":
+				kl.head.xPos += 1
+			case "L":
+				kl.head.xPos -= 1
+			case "U":
+				kl.head.yPos += 1
+			case "D":
+				kl.head.yPos -= 1
+			}
+
+			moveTwo(kl.head.child, direction, tailPositions)
+		}
+	}
+
+	return len(tailPositions)
+}
+
 func calcAbs(inVal int) int {
 	if inVal < 0 {
 		return -inVal
@@ -91,4 +270,5 @@ func main() {
 	data := readinput.ReadData("input.txt")
 	// data := readinput.ReadData("input_test.txt")
 	fmt.Println("Answer one:", one(data))
+	fmt.Println("Answer two:", two(data))
 }
