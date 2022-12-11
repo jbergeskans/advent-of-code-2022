@@ -60,14 +60,8 @@ func one(monkeys []monkey) int {
 }
 
 func two(monkeys []monkey, end int, sm int) int {
-	// for _, e := range monkeys {
-	// 	fmt.Println(e.id, e.inspectCount, e.currItems)
-	// }
 	for i := 0; i < end; i++ {
-		// fmt.Println(monkeys)
 		for idx := range monkeys {
-			// fmt.Println("Running for", idx, "Svals:", monkeys[idx].currItems)
-			// fmt.Println(idx, len(monkeys[idx].currItems))
 			for _, item := range monkeys[idx].currItems {
 				var worryLevel int
 				op := strings.Split(monkeys[idx].operation, " ")
@@ -86,13 +80,10 @@ func two(monkeys []monkey, end int, sm int) int {
 					worryLevel = item + val
 				}
 
-				// fmt.Println(idx, worryLevel, worryLevel%monkeys[idx].divBy, monkeys[idx].passTrue, monkeys[idx].passFalse)
 				if worryLevel%monkeys[idx].divBy == 0 {
 					monkeys[monkeys[idx].passTrue].currItems = append(monkeys[monkeys[idx].passTrue].currItems, worryLevel%sm)
-					// fmt.Println("==", monkeys[idx].passTrue, monkeys[monkeys[idx].passTrue].currItems)
 				} else {
 					monkeys[monkeys[idx].passFalse].currItems = append(monkeys[monkeys[idx].passFalse].currItems, worryLevel%sm)
-					// fmt.Println("==", monkeys[idx].passFalse, monkeys[monkeys[idx].passFalse].currItems)
 				}
 			}
 			monkeys[idx].currItems = nil
