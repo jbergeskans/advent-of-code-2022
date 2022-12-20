@@ -3,96 +3,20 @@ package main
 import (
 	"aoc/2022/aoc2022/readinput"
 	"fmt"
+	"strconv"
 	"strings"
 )
 
 type node struct {
-	selfVal                          rune
-	xPos, yPos, f, g, h, nodeId      int
-	top, right, bottom, left, parent *node
-	visited                          bool
-	visVal, takenDir                 string
+	top, right, bottom, left *node
+	f, g, h, xPos, yPos      int
+	selfVal                  rune
+	visVal                   string
 }
 
 type nodeList struct {
 	nodes []*node
 	maxY  int
-}
-
-func (nl *nodeList) GenerateNode(x, y, nodeId int, r rune, sR string) {
-	if y > nl.maxY {
-		nl.maxY = y
-	}
-	newNode := &node{
-		selfVal:  r,
-		nodeId:   nodeId,
-		xPos:     x,
-		yPos:     y,
-		f:        0,
-		g:        0,
-		h:        0,
-		top:      nil,
-		right:    nil,
-		bottom:   nil,
-		left:     nil,
-		parent:   nil,
-		visited:  false,
-		visVal:   sR,
-		takenDir: ".",
-	}
-	nl.nodes = append(nl.nodes, newNode)
-}
-
-func (nl *nodeList) LinkNodes() {
-	for idx := range nl.nodes {
-		for subIdx := range nl.nodes {
-			if int(nl.nodes[idx].selfVal) >= (int(nl.nodes[subIdx].selfVal))-1 { // Only populate if potential path can be traversed
-				if nl.nodes[idx].xPos == nl.nodes[subIdx].xPos {
-					if nl.nodes[idx].yPos == (nl.nodes[subIdx].yPos + 1) {
-						// If X is same and Y is one less, subIdx node is at bottom
-						nl.nodes[idx].bottom = nl.nodes[subIdx]
-					} else if nl.nodes[idx].yPos == (nl.nodes[subIdx].yPos - 1) {
-						// If X is same and Y is one more, subIdx node is at top
-						nl.nodes[idx].top = nl.nodes[subIdx]
-					}
-				} else if nl.nodes[idx].yPos == nl.nodes[subIdx].yPos {
-					if nl.nodes[idx].xPos == (nl.nodes[subIdx].xPos + 1) {
-						// If Y is same and X is one less, subIdx node is at left
-						nl.nodes[idx].left = nl.nodes[subIdx]
-					} else if nl.nodes[idx].xPos == (nl.nodes[subIdx].xPos - 1) {
-						// If Y is same and X is one more, subIdx node is at right
-						nl.nodes[idx].right = nl.nodes[subIdx]
-					}
-				}
-			}
-		}
-	}
-}
-
-func (nL *nodeList) PrintNodes() {
-	for _, e := range nL.nodes {
-		fmt.Println(e)
-	}
-}
-
-func (nL *nodeList) VisNodes() {
-	for currLine := nL.maxY; currLine != 0; currLine-- {
-		var tmp []*node
-		for _, e := range nL.nodes {
-			if e.yPos == currLine {
-				tmp = append(tmp, e)
-			}
-		}
-
-		for xPos := 0; xPos <= len(tmp); xPos++ {
-			for _, e := range tmp {
-				if e.xPos == xPos {
-					fmt.Print(e.takenDir)
-				}
-			}
-		}
-		fmt.Print("\n")
-	}
 }
 
 func (nL *nodeList) VisNodesStr() {
@@ -115,134 +39,209 @@ func (nL *nodeList) VisNodesStr() {
 	}
 }
 
-func one(data [][]string) int {
-	var open, closed []*node
-	var endNode *node
-	var out int
-	nL := genNodeList(data)
-	nL.LinkNodes()
+func (nL *nodeList) GenerateNode(x, y int, r rune, sR string) {
+	if y > nL.maxY {
+		nL.maxY = y
+	}
 
-	// 0. Add start note to open
+	newNode := &node{
+		top:     nil,
+		right:   nil,
+		bottom:  nil,
+		left:    nil,
+		f:       0,
+		g:       0,
+		h:       0,
+		xPos:    x,
+		yPos:    y,
+		selfVal: r,
+		visVal:  sR,
+	}
+	nL.nodes = append(nL.nodes, newNode)
+}
+
+func (nL *nodeList) LinkNodes() {
 	for idx := range nL.nodes {
-		if nL.nodes[idx].visVal == "S" {
-			nL.nodes[idx].visited = true
-			open = append(open, nL.nodes[idx])
-		} else if nL.nodes[idx].visVal == "E" {
-			endNode = nL.nodes[idx]
-		}
-	}
-
-	end := false
-	for {
-		var lowest *node
-		// fmt.Println(open)
-		// fmt.Println("l1", lowest)
-
-		// 1. Find lowest f value and place in closed
-		for idx := range open {
-			if lowest != nil {
-				if open[idx].f <= lowest.f && !open[idx].visited {
-					lowest = open[idx]
-				}
-			} else {
-				lowest = open[idx]
-			}
-		}
-		lowest.visited = true
-		lowest.g++
-		lowest.h = calcAbs(lowest.xPos-endNode.xPos) + calcAbs(lowest.yPos-endNode.yPos)
-		lowest.f = lowest.g + lowest.h
-		lowest.takenDir = "X"
-		closed = append(closed, lowest)
-
-		// 2. Check adjecent nodes
-		adjecent := []*node{lowest.top, lowest.right, lowest.bottom, lowest.left}
-
-		// fmt.Println("lowest:", lowest.nodeId, lowest.f, lowest)
-
-		for a_idx := range adjecent {
-			// nL.VisNodes()
-			if adjecent[a_idx] == endNode {
-				// fmt.Println("ADASDASDASDASDAS", lowest.parent.f+1)
-				adjecent[a_idx].takenDir = "O"
-				for {
-					if lowest.parent != nil {
-						out++
-						lowest = lowest.parent
-					} else {
-						lowest.takenDir = "O"
-						out++
-						end = true
-						break
+		for subIdx := range nL.nodes {
+			if int(nL.nodes[idx].selfVal) >= (int(nL.nodes[subIdx].selfVal))-1 { // Only populate if potential path can be traversed
+				if nL.nodes[idx].xPos == nL.nodes[subIdx].xPos {
+					if nL.nodes[idx].yPos == (nL.nodes[subIdx].yPos + 1) {
+						// If X is same and Y is one less, subIdx node is at bottom
+						nL.nodes[idx].bottom = nL.nodes[subIdx]
+					} else if nL.nodes[idx].yPos == (nL.nodes[subIdx].yPos - 1) {
+						// If X is same and Y is one more, subIdx node is at top
+						nL.nodes[idx].top = nL.nodes[subIdx]
 					}
-				}
-			} else if adjecent[a_idx] != nil {
-				// 2.1 Checking closed list
-				var inClosed, inOpen *node
-
-				for c_idx := range closed {
-					if closed[c_idx].nodeId == adjecent[a_idx].nodeId {
-						inClosed = closed[c_idx]
-					}
-				}
-
-				// 2.2. Checking open list
-				for o_idx := range open {
-					if open[o_idx].nodeId == adjecent[a_idx].nodeId {
-						inOpen = open[o_idx]
-					}
-				}
-
-				if inClosed == nil {
-					adjecent[a_idx].parent = lowest
-					adjecent[a_idx].g = adjecent[a_idx].parent.g + 1
-					adjecent[a_idx].h = calcAbs(adjecent[a_idx].xPos-endNode.xPos) + calcAbs(adjecent[a_idx].yPos-endNode.yPos)
-					adjecent[a_idx].f = adjecent[a_idx].g + adjecent[a_idx].h
-					// fmt.Println("Adj", adjecent[a_idx].nodeId, adjecent[a_idx].f, adjecent[a_idx])
-					if inOpen == nil {
-						open = append(open, adjecent[a_idx])
-					} else {
-						if adjecent[a_idx].g < inOpen.g {
-							inOpen.visited = true
-							open = append(open, adjecent[a_idx])
-						}
+				} else if nL.nodes[idx].yPos == nL.nodes[subIdx].yPos {
+					if nL.nodes[idx].xPos == (nL.nodes[subIdx].xPos + 1) {
+						// If Y is same and X is one less, subIdx node is at left
+						nL.nodes[idx].left = nL.nodes[subIdx]
+					} else if nL.nodes[idx].xPos == (nL.nodes[subIdx].xPos - 1) {
+						// If Y is same and X is one more, subIdx node is at right
+						nL.nodes[idx].right = nL.nodes[subIdx]
 					}
 				}
 			}
 		}
-		// fmt.Println("open", open)
-		// fmt.Println("closed", closed)
-		// fmt.Println("=======")
-		// nL.VisNodes()
-		if end {
-			break
-		}
 	}
-	nL.VisNodes()
-	return out
 }
 
 func genNodeList(data [][]string) *nodeList {
 	nL := nodeList{}
-	nodeId := 0
-	for y, e := range data { // each row of input, y here is actual_y - 1
-		for x, f := range e { // each col of input, x here is actual_x - 1
-			var fR []rune
+	for y, e := range data {
+		for x, f := range e {
+			var r []rune
 			if f == "S" {
-				fR = []rune("a")
+				r = []rune("a")
 			} else if f == "E" {
-				fR = []rune("z")
+				r = []rune("z")
 			} else {
-				fR = []rune(f)
+				r = []rune(f)
 			}
-			if len(fR) == 1 {
-				nL.GenerateNode(x+1, y+1, nodeId, fR[0], f)
-				nodeId++
-			}
+			nL.GenerateNode(x+1, y+1, r[0], f)
+		}
+	}
+	return &nL
+}
+
+func two(nL *nodeList) int {
+	var open, closed []*node
+	var endNode *node
+
+	for idx, e := range nL.nodes {
+		if e.visVal == "S" {
+			open = append(open, nL.nodes[idx])
+		} else if e.visVal == "E" {
+			endNode = nL.nodes[idx]
 		}
 	}
 
-	return &nL
+	for {
+		var currNode *node
+		var nodeIdx int
+
+		// Identify lowest f
+		for idx := range open {
+			if currNode == nil { // First iteration only
+				currNode = open[idx]
+			} else if open[idx].f < currNode.f {
+				currNode = open[idx]
+				nodeIdx = idx
+			}
+		}
+
+		// Remove lowest f node from open
+		open = slicePop(open, nodeIdx)
+
+		// Check all adjeceten nodes
+		adjecent := []*node{currNode.top, currNode.right, currNode.bottom, currNode.left}
+		for idx := range adjecent {
+			if adjecent[idx] != nil {
+				if adjecent[idx] == endNode {
+					return currNode.g + 1
+				} else {
+					skip := false
+					adjecent[idx].g = currNode.g + 1
+					adjecent[idx].h = calcAbs(adjecent[idx].xPos-endNode.xPos) + calcAbs(adjecent[idx].yPos-endNode.yPos)
+					adjecent[idx].f = adjecent[idx].g + adjecent[idx].h
+					adjecent[idx].visVal = "*"
+					for sidx := range open {
+						if open[sidx].xPos == adjecent[idx].xPos && open[sidx].yPos == adjecent[idx].yPos {
+							if open[sidx].f <= adjecent[idx].f {
+								skip = true
+							}
+						}
+					}
+					for didx := range closed {
+						if closed[didx].xPos == adjecent[idx].xPos && closed[didx].yPos == adjecent[idx].yPos {
+							if closed[didx].f <= adjecent[idx].f {
+								skip = true
+							}
+						}
+					}
+					if !skip {
+						open = append(open, adjecent[idx])
+					}
+				}
+			}
+		}
+		closed = append(closed, currNode)
+		if len(open) == 0 {
+			break
+		}
+	}
+	return 0
+}
+
+func one(data [][]string) int {
+	var open, closed []*node
+	var endNode *node
+	nL := genNodeList(data)
+	nL.LinkNodes()
+
+	for idx, e := range nL.nodes {
+		if e.visVal == "S" {
+			open = append(open, nL.nodes[idx])
+		} else if e.visVal == "E" {
+			endNode = nL.nodes[idx]
+		}
+	}
+
+	for {
+		var currNode *node
+		var nodeIdx int
+
+		// Identify lowest f
+		for idx := range open {
+			if currNode == nil { // First iteration only
+				currNode = open[idx]
+			} else if open[idx].f < currNode.f {
+				currNode = open[idx]
+				nodeIdx = idx
+			}
+		}
+
+		// Remove lowest f node from open
+		open = slicePop(open, nodeIdx)
+
+		// Check all adjeceten nodes
+		adjecent := []*node{currNode.top, currNode.right, currNode.bottom, currNode.left}
+		for idx := range adjecent {
+			if adjecent[idx] != nil {
+				if adjecent[idx] == endNode {
+					return currNode.g + 1
+				} else {
+					skip := false
+					adjecent[idx].g = currNode.g + 1
+					adjecent[idx].h = calcAbs(adjecent[idx].xPos-endNode.xPos) + calcAbs(adjecent[idx].yPos-endNode.yPos)
+					adjecent[idx].f = adjecent[idx].g + adjecent[idx].h
+					adjecent[idx].visVal = "*"
+					for sidx := range open {
+						if open[sidx].xPos == adjecent[idx].xPos && open[sidx].yPos == adjecent[idx].yPos {
+							if open[sidx].f <= adjecent[idx].f {
+								skip = true
+							}
+						}
+					}
+					for didx := range closed {
+						if closed[didx].xPos == adjecent[idx].xPos && closed[didx].yPos == adjecent[idx].yPos {
+							if closed[didx].f <= adjecent[idx].f {
+								skip = true
+							}
+						}
+					}
+					if !skip {
+						open = append(open, adjecent[idx])
+					}
+				}
+			}
+		}
+		closed = append(closed, currNode)
+		if len(open) == 0 {
+			break
+		}
+	}
+	return 0
 }
 
 func calcAbs(inVal int) int {
@@ -250,6 +249,10 @@ func calcAbs(inVal int) int {
 		return -inVal
 	}
 	return inVal
+}
+
+func slicePop(s []*node, idx int) []*node {
+	return append(s[:idx], s[idx+1:]...)
 }
 
 func reverseSlice(data []string) [][]string {
@@ -266,9 +269,60 @@ func reverseSlice(data []string) [][]string {
 	return revSlice
 }
 
+func reGen(graphData [][]string) *nodeList {
+	nL := genNodeList(graphData)
+	nL.LinkNodes()
+	for idx := range nL.nodes {
+		if nL.nodes[idx].visVal == "S" {
+			nL.nodes[idx].visVal = "a"
+		}
+	}
+	return nL
+}
+
+func triggerTwo(graphData [][]string) int {
+	var out []int
+	wasStart := make(map[string]int)
+	for {
+		done := true
+		nL := reGen(graphData)
+		for idx := range nL.nodes {
+			if nL.nodes[idx].visVal == "a" {
+				tmpStr := strconv.Itoa(nL.nodes[idx].xPos) + "_" + strconv.Itoa(nL.nodes[idx].yPos)
+				if wasStart[tmpStr] < 1 {
+					nL.nodes[idx].visVal = "S"
+					wasStart[tmpStr]++
+					done = false
+					break
+				}
+			}
+		}
+		if done {
+			break
+		}
+		retVal := two(nL)
+		if retVal != 0 {
+			out = append(out, retVal)
+		}
+	}
+
+	var low int
+	for _, e := range out {
+		if e != 0 {
+			if e < low {
+				low = e
+			} else if low == 0 {
+				low = e
+			}
+		}
+	}
+	return low
+}
+
 func main() {
 	// data := readinput.ReadData("input_test.txt")
 	data := readinput.ReadData("input.txt")
-	reversedData := reverseSlice(data)
-	fmt.Println("First", one(reversedData))
+	graphData := reverseSlice(data)
+	fmt.Println("First:", one(graphData))
+	fmt.Println("Second:", triggerTwo(graphData))
 }
